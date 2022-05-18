@@ -1,5 +1,6 @@
 import pandas as pd
 import math
+import pprint 
 
 def total_entropy(ds, label):
     total_entropy = 0 
@@ -91,25 +92,15 @@ def id3(ds, label):
     construct_tree(tree, None, ds_copy, label)
     return tree
 
-def print_tree(tree):
-    str_tree = str(tree)
-    print(tree)
-    final = ""
-    sangria_counter = 0 
-    for char in str_tree:
-        if char == '{' :
-            sangria_counter += 1
-            final =  final + (' '*sangria_counter)
-        elif char == '}':
-            sangria_counter -= 1
-            final =  final + '\n' + (' '*sangria_counter)
-        elif char == ":" or char == ",": 
-            final =  final + '\n' + (' '*sangria_counter)
-        else:
-            final += char
-    print(final)
+def print_pretty(d, indent=0):
+   for key, value in d.items():
+      print('  ' * indent + str(key))
+      if isinstance(value, dict):
+         print_pretty(value, indent+1)
+      else:
+         print('  ' * (indent+1) + str(value))
 
 if __name__ == "__main__":
     df = pd.read_csv("tenis.csv")
     tree = id3(df, 'play')
-    print_tree(tree)
+    print_pretty(tree)
