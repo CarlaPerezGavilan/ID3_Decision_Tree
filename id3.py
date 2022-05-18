@@ -50,6 +50,7 @@ def max_info_gain(ds, label):
     return max_feature
 
 
+
 def generate_child(feature_name, ds, label):
     dict_value_count =  ds[feature_name].value_counts(sort=False)
     subtree = {}
@@ -58,18 +59,18 @@ def generate_child(feature_name, ds, label):
         data = ds[ds[feature_name] == v] 
         assigned_flag = False
         for cl in class_data: 
-            count = data[data[label]== v].shape[0]
-        if count == c: 
-            subtree[v] = cl
-            ds = ds[ds[feature_name] != v]
-            assigned_flag = True
-    if not assigned_flag: 
-        subtree[v] = "?"
+            count = data[data[label]== cl].shape[0]
+            if count == c: 
+                subtree[v] = cl
+                ds = ds[ds[feature_name] != v]
+                assigned_flag = True
+        if not assigned_flag: 
+            subtree[v] = "unassigned"
     return subtree, ds
 
 def construct_tree(root, prev, ds, label):
     class_data = ds[label].unique()
-    if ds.shape[0] == 0:
+    if ds.shape[0] != 0:
         max_info = max_info_gain(ds, label)
         tree, ds = generate_child(max_info, ds, label)
         next = None
@@ -83,7 +84,7 @@ def construct_tree(root, prev, ds, label):
             next = root[max_info]
 
         for node, branch in list(next.items()):
-            if branch == "?":
+            if branch == "unassigned":
                 new_data = ds[ds[max_info] == node]
                 construct_tree(next, node, new_data, label)
 
@@ -93,7 +94,25 @@ def id3(ds, label):
     construct_tree(tree, None, ds_copy, label)
     return tree
 
+def print_tree(tree):
+    str_tree = str(tree)
+    print(tree)
+    final = ""
+    sangria_counter = 0 
+    for char in str_tree:
+        if char == '{' :
+            sangria_counter += 1
+            final =  final + (' '*sangria_counter)
+        elif char == '}':
+            sangria_counter -= 1
+            final =  final + '\n' + (' '*sangria_counter)
+        elif char == ":" or char == ",": 
+            final =  final + '\n' + (' '*sangria_counter)
+        else:
+            final += char
+    print(final)
+
 if __name__ == "__main__":
     df = pd.read_csv("tenis.csv")
     tree = id3(df, 'play')
-    print(str(tree))
+    print_tree(tree)
