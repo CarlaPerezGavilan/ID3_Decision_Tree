@@ -1,8 +1,5 @@
-from enum import unique
 import pandas as pd
 import math
-
-from pip import main
 
 def total_entropy(ds, label):
     total_entropy = 0 
